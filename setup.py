@@ -15,7 +15,7 @@ def read(filename):
 
 setup(
     name="py_snappyflow",
-    version="0.1.1",
+    version="0.1.3",
     url="https://github.com/snappyflow/py_snappyflow",
     license='MIT',
 
@@ -27,7 +27,7 @@ setup(
     long_description_content_type='text/markdown',
     packages=find_packages(exclude=('tests',)),
 
-    install_requires=['cryptography', 'pycryptodome'],
+    install_requires=['cryptography==3.4.7', 'pycryptodome==3.10.1', 'cffi==1.14.6'],
 
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

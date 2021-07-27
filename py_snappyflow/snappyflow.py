@@ -5,25 +5,41 @@ from Crypto.Cipher import AES
 import json
 
 __CP_ENCRYPTED_KEY = "U25hcHB5RmxvdzEyMzQ1Ng=="
-# __key = 'SnappyFlow123456'.encode('utf-8')
 
-def get_trace_config(profile_key):
+def get_trace_config(profile_key, project_name, app_name):
+    """ Returns Snappyflow trace config
+
+    Args:
+        profile_key ([string]): [Snappyflow Profile Key]
+        project_name ([string]): [Project name]
+        app_name ([string]): [App name]
+
+    Raises:
+        ValueError: [If profile key is invalid]
+
+    Returns:
+        [dict]: [trace config]
+    """    
 
     unpad = lambda s : s[0:-ord(s[-1:])]
 
     key = base64.b64decode(__CP_ENCRYPTED_KEY)
-    # profile_key = '1saLgj1D4xFfQV8oozU4DwzwnDovmWT+sFl7SxpcEWvs1LNSSdGWZ9s/AwARQNLMo86ZknbXjFfzWfH8iL3v+6nHrOQb54rY8jpC9/hd5LCjz3CczAo39mTNhEM5iewj0hFsvupbKqQ0cYavFDPf/lnbVz489XGyHM0WCD7h8u1WaGIQK1iBFgxCCgHze8TlHMHoob8vvzDvqlvi8rh4kXWQu2+QynkeU+ByqoLjL8cXIVdq3xx2umf20ygW1nph3gOZm7TmFUq9kTN9pht9DCVwQ1fiBx8MEfbKukhBbM1rvRQttpIWY8pS/vDLbQwJyLNlyA4NkOu5TY3zMWgdJz4K3ORaXOruCYu/KIxbUBkFyorvk/iVsxhbZvJ3zAx8FOS/sZn/2Z48c2fKlt3Thw=='
-
+    
     enc = base64.b64decode(profile_key)
     iv = enc[:16]
     cipher = AES.new(key, AES.MODE_CBC, iv )
     message = unpad(cipher.decrypt( enc[16:] )).decode('utf-8')
     try:
         data = json.loads(message)
-        trace_data = {}
-        for key, value in data.items():
-            if key.lower().find('trace') > -1:
-                trace_data[key] = value
+        global_labels = "_tag_projectName={},_tag_appName={},_tag_profileId={}".format(project_name, app_name, data['profile_id'])
+        trace_data = {
+            'SFTRACE_SERVER_URL': data['trace_server_url'],
+            'SFTRACE_SPAN_FRAMES_MIN_DURATION': "1ms",
+            'SFTRACE_STACK_TRACE_LIMIT': 2,
+            'SFTRACE_CAPTURE_SPAN_STACK_TRACES': False,
+            'SFTRACE_VERIFY_SERVER_CERT': False,
+            'SFTRACE_GLOBAL_LABELS': global_labels
+        }
         return trace_data
     except Exception as e:
         raise ValueError("Invalid profile key.")

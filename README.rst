@@ -16,6 +16,6 @@ Usage
    ::
 
        from py_snappyflow import snappyflow as sf
-       trace_config = sf.get_trace_config(<Snappyflow Profile Key>)
+       trace_config = sf.get_trace_config(<Snappyflow Profile Key>, <Project Name>, <App Name>)
 
 
